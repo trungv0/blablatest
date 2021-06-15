@@ -42,6 +42,6 @@ def compute_pairwise_rates(eur_rates):
         )
         .stack()
         .to_frame("exchange_rate")
-        .reset_index()
         .query("from_cur_code != to_cur_code")
+        .reset_index()
     )
