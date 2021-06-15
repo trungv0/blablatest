@@ -1,5 +1,5 @@
 import click
-from blablatest.db import create_connection
+from blablatest.db import create_connection, insert_currency
 from blablatest.data import (
     extract_exchange_rates,
     extract_serial_codes,
@@ -28,16 +28,24 @@ def cli(postgres_host, postgres_port, postgres_user, postgres_pass, postgres_db,
         df = extract_exchange_rates(input)
         df_meta = extract_serial_codes(input)
 
+        last_values = (
+            df.sort_values("history_date", ascending=False)
+            .drop_duplicates("cur_code")
+            .drop("history_date", axis=1)
+            .merge(df_meta, on="cur_code")
+        )
+        insert_currency(con, last_values.to_dict("records"))
+
         # compute pairwise rates for each date
         # TODO skip dates that existed in the DB
-        df_rates = pd.concat(
-            [
-                compute_pairwise_rates(subdf.set_index("cur_code")["rate"]).assign(
-                    history_date=history_date
-                )
-                for history_date, subdf in df.groupby("history_date")
-            ]
-        )
+        # df_rates = pd.concat(
+        #     [
+        #         compute_pairwise_rates(subdf.set_index("cur_code")["one_euro_value"]).assign(
+        #             history_date=history_date
+        #         )
+        #         for history_date, subdf in df.groupby("history_date")
+        #     ]
+        # )
 
         print(df.shape)
 

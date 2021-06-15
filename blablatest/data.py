@@ -18,7 +18,7 @@ def extract_exchange_rates(input):
     currencies = df.columns[1:].str.extract(CURRENCY_PATTERN)["code"]
     df.columns = ["history_date", *currencies.tolist()]
     return df.melt(
-        id_vars=["history_date"], var_name="cur_code", value_name="rate"
+        id_vars=["history_date"], var_name="cur_code", value_name="one_euro_value"
     ).dropna()
 
 
