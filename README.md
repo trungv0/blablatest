@@ -11,6 +11,14 @@ Dependencies are managed using [poetry](https://python-poetry.org/docs/#installa
 poetry install
 ```
 
+## Setup database
+
+Tables must be created before running the main script.
+
+```bash
+psql -U [user] [database] < database.sql
+```
+
 ## Execute
 
 ```bash
