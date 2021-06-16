@@ -37,6 +37,12 @@ Options:
 * `-i, --input TEXT`: url or local path to data file,
   default http://webstat.banque-france.fr/fr/downloadFile.do?id=5385698&exportType=csv
 
+Note:
+
+* Assuming that the script is launched regularly (daily), the computation and historization of pairwise exchange rates
+  are skipped for old data. This is done by checking the last processed date in the history table, so updates in any
+  dates beforehand are ignored.
+
 ## Unit test
 
 ```bash
