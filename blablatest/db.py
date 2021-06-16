@@ -1,5 +1,6 @@
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.sql import select, func
 from contextlib import contextmanager
 
 from blablatest.models import Currency, ExchangeRateHistory
@@ -24,7 +25,17 @@ def insert_currency(con, records):
         set_=dict(
             one_euro_value=insert_stm.excluded.one_euro_value,
             serial_code=insert_stm.excluded.serial_code,
-            last_updated_date=sa.text("current_date"),
+            last_updated_date=func.current_date(),
         ),
     )
     con.execute(insert_stm)
+
+
+def get_last_history_date(con):
+    return con.execute(
+        select(func.max(history_table.c.history_date))
+    ).scalar()
+
+
+def insert_history(con, records):
+    con.execute(history_table.insert(), records)

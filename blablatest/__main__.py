@@ -1,5 +1,5 @@
 import click
-from blablatest.db import create_connection, insert_currency
+from blablatest.db import create_connection, insert_currency, insert_history, get_last_history_date
 from blablatest.data import (
     extract_exchange_rates,
     extract_serial_codes,
@@ -34,20 +34,26 @@ def cli(postgres_host, postgres_port, postgres_user, postgres_pass, postgres_db,
             .drop("history_date", axis=1)
             .merge(df_meta, on="cur_code")
         )
-        insert_currency(con, last_values.to_dict("records"))
+        if len(last_values) > 0:
+            insert_currency(con, last_values.to_dict("records"))
+        last_date = get_last_history_date(con)
 
-        # compute pairwise rates for each date
-        # TODO skip dates that existed in the DB
-        # df_rates = pd.concat(
-        #     [
-        #         compute_pairwise_rates(subdf.set_index("cur_code")["one_euro_value"]).assign(
-        #             history_date=history_date
-        #         )
-        #         for history_date, subdf in df.groupby("history_date")
-        #     ]
-        # )
+        # skip processed dates to avoid redundant computation
+        if last_date is not None:
+            df = df.query("history_date > @last_date")
 
-        print(df.shape)
+        if len(df) > 0:
+            # compute pairwise rates for each date
+            df_rates = pd.concat(
+                [
+                    compute_pairwise_rates(subdf.set_index("cur_code")["one_euro_value"]).assign(
+                        history_date=history_date
+                    )
+                    for history_date, subdf in df.groupby("history_date")
+                ]
+            )
+            if len(df_rates) > 0:
+                insert_history(con, df_rates.to_dict("records"))
 
 
 if __name__ == "__main__":

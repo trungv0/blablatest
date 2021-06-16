@@ -1,5 +1,8 @@
 # blablatest
 
+Note: this project uses PostgreSQL dialect.
+It should also work on Google Cloud SQL Postgres.
+
 ## Install dependencies
 
 Dependencies are managed using [poetry](https://python-poetry.org/docs/#installation).
