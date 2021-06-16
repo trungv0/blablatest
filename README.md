@@ -1,4 +1,5 @@
 # blablatest
+[![Build Status](https://travis-ci.com/trungv0/blablatest.svg?branch=main)](https://travis-ci.com/github/trungv0/blablatest)
 
 Note: this project uses PostgreSQL dialect.
 It should also work on Google Cloud SQL Postgres.
