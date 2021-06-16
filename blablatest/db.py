@@ -1,3 +1,4 @@
+import logging
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.sql import select, func
@@ -5,6 +6,7 @@ from contextlib import contextmanager
 
 from blablatest.models import Currency, ExchangeRateHistory
 
+logger = logging.getLogger(__name__)
 currency_table = Currency.__table__
 history_table = ExchangeRateHistory.__table__
 
@@ -19,6 +21,7 @@ def create_connection(hostname, port, user, password, database):
 
 
 def insert_currency(con, records):
+    logger.info("Upsert %d currency entries", len(records))
     insert_stm = insert(currency_table).values(records)
     insert_stm = insert_stm.on_conflict_do_update(
         index_elements=[currency_table.c.cur_code],
@@ -29,6 +32,7 @@ def insert_currency(con, records):
         ),
     )
     con.execute(insert_stm)
+    logger.info("Upsert done")
 
 
 def get_last_history_date(con):
@@ -38,4 +42,6 @@ def get_last_history_date(con):
 
 
 def insert_history(con, records):
+    logger.info("Insert %d exchange rate entries", len(records))
     con.execute(history_table.insert(), records)
+    logger.info("Insert done")

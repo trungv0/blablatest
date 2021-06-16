@@ -1,3 +1,4 @@
+import logging
 import click
 from blablatest.db import create_connection, insert_currency, insert_history, get_last_history_date
 from blablatest.data import (
@@ -6,6 +7,9 @@ from blablatest.data import (
     compute_pairwise_rates,
 )
 import pandas as pd
+
+
+logger = logging.getLogger("blablatest")
 
 
 @click.command()
@@ -22,6 +26,7 @@ import pandas as pd
     default="http://webstat.banque-france.fr/fr/downloadFile.do?id=5385698&exportType=csv",
 )
 def cli(postgres_host, postgres_port, postgres_user, postgres_pass, postgres_db, input):
+    logger.info("Input file: %s", input)
     with create_connection(
         postgres_host, postgres_port, postgres_user, postgres_pass, postgres_db
     ) as con:
@@ -52,8 +57,11 @@ def cli(postgres_host, postgres_port, postgres_user, postgres_pass, postgres_db,
                     for history_date, subdf in df.groupby("history_date")
                 ]
             )
+            logger.info("Got %d new exchange rate entries", len(df_rates))
             if len(df_rates) > 0:
                 insert_history(con, df_rates.to_dict("records"))
+        else:
+            logger.info("No new data to historize since %s", last_date)
 
 
 if __name__ == "__main__":
