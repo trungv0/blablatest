@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "blablatest"
+version = "0.1.0"
+description = ""
+authors = ["Trung Vuong <trungvq98@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pandas = "^1.2.4"
+psycopg2-binary = "^2.8.6"
+SQLAlchemy = "^1.4.18"
+click = "^8.0.1"
+
+[tool.poetry.dev-dependencies]
+ipdb = "^0.13.9"
+pytest = "^6.2.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
